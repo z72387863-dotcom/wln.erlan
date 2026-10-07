@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Happy 16th Birthday Wulan 🎂</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:linear-gradient(180deg,#87CEEB 0%,#ffd6e7 100%);height:100vh;overflow:hidden;font-family:'Poppins',sans-serif;display:flex;align-items:center;justify-content:center;flex-direction:column}
+canvas{display:block;background:linear-gradient(#a0d8ef,#ffe6f0);border:4px solid white;border-radius:16px;box-shadow:0 12px 30px rgba(0,0,0,.2);max-width:95vw}
+#controls{display:flex;gap:12px;margin-top:12px}
+.btn{width:64px;height:64px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 4px 12px rgba(0,0,0,.15);user-select:none}
+#win{position:fixed;inset:0;background:linear-gradient(135deg,#ff9a9e 0%,#fecfef 50%,#ffdde1 100%);display:none;align-items:center;justify-content:center;flex-direction:column;padding:20px;z-index:99;overflow-y:auto}
+.card{background:white;padding:28px;border-radius:28px;max-width:560px;width:96%;box-shadow:0 20px 50px rgba(0,0,0,.25);animation:pop.6s cubic-bezier(.175,.885,.32,1.275);text-align:center}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+#typewriter{white-space:pre-wrap;font-size:15.5px;line-height:1.8;color:#333;text-align:left;margin-top:18px;min-height:100px}
+</style>
+</head>
+<body>
+<audio id="bgm" loop preload="auto" crossorigin="anonymous"><source src="https://files.catbox.moe/5wttdc.mp3" type="audio/mpeg"></audio>
+
+<canvas id="game" width="800" height="430"></canvas>
+<div id="controls">
+<div class="btn" id="left">⬅️</div>
+<div class="btn" id="jump">⬆️</div>
+<div class="btn" id="right">➡️</div>
+</div>
+<p style="margin-top:8px;color:#5a2a3a;font-weight:600;font-size:12px">BANTU WULAN (PINK) KE PANGERAN BAJU BIRU + KADO 💝</p>
+
+<div id="win">
+<div class="card">
+<div style="font-size:44px">👑</div>
+<h1 style="font-family:'Dancing Script',cursive;color:#ff4d8d;margin:8px 0;font-size:28px">Happy Birthday Princess Kesayanganku!</h1>
+<p style="color:#888;font-size:13px">🎵 Cinderella - Mac Miller ft. Ty Dolla $ign</p>
+<div id="typewriter"></div>
+<div style="text-align:right;margin-top:24px;font-weight:700;color:#2563eb;font-size:15px">- Pangeran baju birumu 💙</div>
+<button onclick="document.getElementById('bgm').pause();location.reload()" style="margin-top:22px;width:100%;padding:14px;border:none;background:linear-gradient(90deg,#ff4d8d,#ff8fab);color:white;border-radius:14px;font-size:16px;font-weight:700">Main Lagi Yuk Sayang 💞</button>
+</div>
+</div>
+
+<script>
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+let keys={}, gameWon=false;
+let p={x:30,y:320,w:28,h:38,vx:0,vy:0,onGround:false};
+let bf={x:700,y:112,w:34,h:50};
+let gravity=0.58;
+let platforms=[
+{x:0,y:390,w:800,h:50},
+{x:130,y:320,w:120,h:14},
+{x:300,y:260,w:120,h:14},
+{x:480,y:200,w:120,h:14},
+{x:640,y:150,w:150,h:14}
+];
+let enemies=[
+{x:140,y:296,w:24,h:24,vx:1.5,alive:true,plat:1},
+{x:320,y:236,w:24,h:24,vx:1.5,alive:true,plat:2}
+];
+const L=document.getElementById('left'),R=document.getElementById('right'),J=document.getElementById('jump');
+const add=(el,code)=>{el.addEventListener('touchstart',e=>{e.preventDefault();keys[code]=true},{passive:false});el.addEventListener('touchend',e=>{e.preventDefault();keys[code]=false},{passive:false});};
+add(L,'ArrowLeft');add(R,'ArrowRight');add(J,'Space');
+document.addEventListener('keydown',e=>keys[e.code]=true);
+document.addEventListener('keyup',e=>keys[e.code]=false);
+
+const pesan=`happy birthday princess kesayangan akuu 🎂👑
+
+semoga di ulang tahun kamu yang ke 16 kebaikan dan keberuntungan selalu ngikutin kamu ya sayang
+
+maapp soal bulan bulan sebelum nya sayaang
+
+terima kasih kamu uda selalu ada buat aku selalu jadi rumah ternyaman di saat aku lagi capee di saat aku lagi butuh kamu sayangg
+
+kitaa sama sama berproses ya sayang kita jalanin hubungan ini smaa samaa sayangg
+
+semoga samaa kamu bukan cuma sementara tapi selama nya sayangg
+
+sayang dedee banyakk banyakk💞
+
+- pangeran baju biru mu`;
+
+function typeText(){
+let i=0;const el=document.getElementById('typewriter');
+const bgm=document.getElementById('bgm');bgm.volume=0.75;
+bgm.play().catch(()=>{document.body.addEventListener('click',()=>bgm.play(),{once:true})});
+let inter=setInterval(()=>{
+el.innerText=pesan.slice(0,i);i++;
+if(i>pesan.length) clearInterval(inter);
+},35);
+}
+function drawPlayer(px,py,pw,ph,color,shirt){
+ctx.fillStyle='#ffdbac';ctx.beginPath();ctx.arc(px+pw/2,py+7,11,0,7);ctx.fill();
+ctx.fillStyle='#4a2c1a';ctx.fillRect(px-2,py-4,pw+4,14);
+ctx.fillStyle=shirt;ctx.fillRect(px,py+14,pw,ph-14);
+ctx.fillStyle=color;ctx.fillRect(px,py+14,pw,6);
+}
+function drawBoy(px,py){
+ctx.fillStyle='#2563eb';ctx.fillRect(px,py+15,34,35);
+ctx.fillStyle='#1e40af';ctx.fillRect(px,py+15,34,7);
+ctx.fillStyle='#ffdbac';ctx.beginPath();ctx.arc(px+17,py+8,12,0,7);ctx.fill();
+ctx.fillStyle='#2d1b0e';ctx.fillRect(px+4,py-2,26,10);
+ctx.fillStyle='gold';ctx.fillRect(px-16,py+24,30,26);ctx.fillStyle='#ff1744';ctx.fillRect(px-16,py+35,30,5);ctx.fillRect(px-3,py+24,5,26);
+}
+function loop(){
+ctx.clearRect(0,0,800,430);
+ctx.fillStyle='rgba(255,255,255,.9)';
+[[90,50],[400,60],[600,40]].forEach(([cx,cy])=>{ctx.beginPath();ctx.arc(cx,cy,18,0,7);ctx.arc(cx+20,cy,24,0,7);ctx.arc(cx+40,cy,18,0,7);ctx.fill();});
+if(!gameWon){
+if(keys['ArrowLeft'])p.vx=-4.2;else if(keys['ArrowRight'])p.vx=4.2;else p.vx*=0.8;
+if(keys['Space']&&p.onGround){p.vy=-11.8;p.onGround=false}
+p.vy+=gravity;p.x+=p.vx;p.y+=p.vy;p.onGround=false;
+if(p.x<0)p.x=0;if(p.x+p.w>800)p.x=800-p.w;
+platforms.forEach(pl=>{if(p.x<pl.x+pl.w&&p.x+p.w>pl.x&&p.y<pl.y+pl.h&&p.y+p.h>pl.y){if(p.vy>0&&p.y<pl.y){p.y=pl.y-p.h;p.vy=0;p.onGround=true}}});
+enemies.forEach(en=>{if(!en.alive)return;en.x+=en.vx;const pl=platforms[en.plat];if(en.x<pl.x||en.x+en.w>pl.x+pl.w)en.vx*=-1;if(p.x<en.x+en.w&&p.x+p.w>en.x&&p.y<en.y+en.h&&p.y+p.h>en.y){if(p.vy>0){en.alive=false;p.vy=-9}else{p.x=30;p.y=320;p.vy=0}}});
+if(p.x+p.w>bf.x-5&&p.x<bf.x+bf.w&&p.y+38>bf.y){gameWon=true;setTimeout(()=>{document.getElementById('win').style.display='flex';typeText()},600);}
+}
+platforms.forEach(pl=>{ctx.fillStyle='#ff8fab';ctx.fillRect(pl.x,pl.y,pl.w,pl.h);ctx.fillStyle='#ff5c8a';ctx.fillRect(pl.x,pl.y,pl.w,4);});
+enemies.forEach(en=>{if(!en.alive)return;ctx.fillStyle='#ff4444';ctx.fillRect(en.x,en.y,en.w,en.h);ctx.fillStyle='white';ctx.fillRect(en.x+4,en.y+5,5,5);ctx.fillRect(en.x+14,en.y+5,5,5);});
+drawBoy(bf.x,bf.y);
+drawPlayer(p.x,p.y,p.w,p.h,'#ff69b4','#ff8fab');
+if(gameWon){ctx.font='26px serif';ctx.fillText('💝',bf.x-10,bf.y-6)}
+if(p.y>500){p.x=30;p.y=320;p.vy=0}
+requestAnimationFrame(loop);
+}
+let ph=38;
+loop();
+</script>
+</body>
+</html>
